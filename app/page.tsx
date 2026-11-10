@@ -215,8 +215,6 @@ export default function Home(){
               {hasTemplate?<img className="paper-bg" alt="Uploaded A4 sample template" src={`/api/template?v=${imageVersion}`}/>:<div className="paper-placeholder"><div className="placeholder-icon">▧</div><b>A4 TEMPLATE PREVIEW</b><span>Upload your JPG or PNG from Template manager</span><span>210 × 297 mm</span></div>}
               {(['registration','file','date'] as Array<'registration'|'file'|'date'>).map(key=><div key={key} className={'overlay-field'+(tab==='template'&&selected===key?' highlighted':'')} style={{left:`${config[key].x}%`,top:`${config[key].y}%`,width:`${config[key].width}%`,height:`${config[key].height}%`,fontSize:`${(config[key].fontSize / 595.28 * 100).toFixed(4)}cqw`}}>{fields[key]}</div>)}
               <div className={'overlay-logo'+(!logo&&tab!=='template'?' logo-empty':'')+(tab==='template'&&selected==='logo'?' highlighted':'')} style={{left:`${config.logo.x}%`,top:`${config.logo.y}%`,width:`${config.logo.width}%`,height:`${config.logo.height}%`}}>{logo?<img alt="User logo" src={logo}/>:tab==='template'?<span>LOGO POSITION</span>:null}</div>
-              <div className="sample-watermarks"><span>SAMPLE · NOT VALID</span><span>SAMPLE · NOT VALID</span><span>SAMPLE · NOT VALID</span></div>
-              <div className="demo-foot">UNOFFICIAL DEMONSTRATION · NOT ISSUED BY ANY GOVERNMENT AGENCY</div>
             </div></div>
             <div className="preview-caption">{tab==='template'?'Admin positioning mode: click the page to move the selected item.':'Preview reflects the sample PDF fields. Position settings are controlled by Admin.'}</div>
           </div></div>
