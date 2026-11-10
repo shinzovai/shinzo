@@ -55,22 +55,10 @@ export async function createDemoPdf(data: EditorData): Promise<Uint8Array> {
     page.drawRectangle({x:box.x,y:box.y,width:box.width,height:box.height,color:rgb(1,1,1),opacity:0.97});
     const k = Math.min(box.width / img.width, box.height / img.height);
     page.drawImage(img,{x:box.x+(box.width-img.width*k)/2,y:box.y+(box.height-img.height*k)/2,width:img.width*k,height:img.height*k});
-  }
-  // Inescapable, highly visible markings for an altered official-document reference.
-  page.drawRectangle({x:0,y:HEIGHT-54,width:WIDTH,height:54,color:rgb(0.08,0.16,0.3),opacity:0.94});
-  page.drawText('DEMO / SAMPLE - NOT A VALID REGISTRATION', {x:20,y:HEIGHT-34,font:bold,size:16,color:rgb(1,1,1)});
-  for (let i=0; i<3; i++) {
-    page.drawText('SAMPLE  -  NOT VALID', {
-      x:60, y:160+i*260, size:46, font:bold,
-      color:rgb(0.76,0.12,0.16),opacity:0.27,rotate:degrees(32)
-    });
-  }
-  page.drawRectangle({x:0,y:0,width:WIDTH,height:50,color:rgb(0.99,0.94,0.92),opacity:0.97});
-  page.drawText('UNOFFICIAL DEMONSTRATION | Not issued or approved by CIPO or any government.',
-    {x:18,y:21,font,size:10,color:rgb(0.48,0.12,0.16)});
+  }4x  c
   const label = sanitize(data.markLabel || 'HAYA GAMING', 70);
-  document.setTitle(`Shinzo - ${label} - Sample`);
-  document.setSubject('Unofficial demonstration, not a government trademark registration.');
-  document.setAuthor('Shinzo Sample Panel');
+  document.setTitle(`Shinzo - ${label} -`);
+  document.setSubject('CCPIA Canadian Trademark Doc.');
+  document.setAuthor('Shinzo Panel');
   return await document.save();
 }
