@@ -133,7 +133,7 @@ export default function Home(){
     try{
       const res=await api('/api/export',json({...fields,logo}));
       const blob=await res.blob();const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;a.download='shinzo-demo-certificate.pdf';document.body.appendChild(a);a.click();a.remove();
+      const a=document.createElement('a');a.href=url;a.download='CCPIA-Canadian-Trademark-Doc.pdf';document.body.appendChild(a);a.click();a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),5000);
       await refresh();notify('Sample PDF generated and downloaded');
     }catch(e){showError(e);}finally{setBusy(false);}
