@@ -222,7 +222,23 @@ export default function Home(){
                 <div className="inputs">
                   <label>01 &nbsp; Registration number<input value={fields.registration} onChange={e=>setFields(f=>({...f,registration:e.target.value}))} maxLength={70}/></label>
                   <label>02 &nbsp; File number<input value={fields.file} onChange={e=>setFields(f=>({...f,file:e.target.value}))} maxLength={70}/></label>
-                  <label>03 &nbsp; Registration date<input value={fields.date} onChange={e=>setFields(f=>({...f,date:e.target.value}))} maxLength={70}/></label>
+                  
+<label>
+  03 &nbsp; Registration date
+  <input
+    value={fields.date}
+    onChange={e => setFields(f => ({
+      ...f,
+      date: e.target.value
+    }))}
+    onBlur={e => setFields(f => ({
+      ...f,
+      date: formatBilingualDate(e.target.value)
+    }))}
+    maxLength={70}
+    placeholder="22 May 2020"
+  />
+</label>
                   <label>04 &nbsp; Logo upload<input ref={logoInputRef} type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onChange={e=>uploadLogo(e.target.files?.[0])}/></label>
                   {logo&&<button className="text-button" onClick={()=>{setLogo(null);if(logoInputRef.current)logoInputRef.current.value=''}}>Remove uploaded logo</button>}
                 </div>
