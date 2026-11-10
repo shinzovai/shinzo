@@ -55,7 +55,6 @@ export async function createDemoPdf(data: EditorData): Promise<Uint8Array> {
     page.drawRectangle({x:box.x,y:box.y,width:box.width,height:box.height,color:rgb(1,1,1),opacity:0.97});
     const k = Math.min(box.width / img.width, box.height / img.height);
     page.drawImage(img,{x:box.x+(box.width-img.width*k)/2,y:box.y+(box.height-img.height*k)/2,width:img.width*k,height:img.height*k});
-  }4x  c
   const label = sanitize(data.markLabel || 'HAYA GAMING', 70);
   document.setTitle(`Shinzo - ${label} -`);
   document.setSubject('CCPIA Canadian Trademark Doc.');
