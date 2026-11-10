@@ -30,7 +30,7 @@ export async function createDemoPdf(data: EditorData): Promise<Uint8Array> {
   const document = await PDFDocument.create();
   const page = document.addPage([WIDTH, HEIGHT]);
   const font = await document.embedFont(StandardFonts.Helvetica);
-  const bold = await document.embedFont(StandardFonts.HelveticaBold);
+  const bold = await document.embedFont(StandardFonts.TimesRomanBold);
   const background = mime === 'image/png'
     ? await document.embedPng(imageBuffer) : await document.embedJpg(imageBuffer);
   // Entire image remains visible, without stretching. Matching A4 scans fill the page.
