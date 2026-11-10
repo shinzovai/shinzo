@@ -7,6 +7,46 @@ type MeData={authenticated:true;user:UserPublic;templateExists:boolean;config:Te
 type Tab='studio'|'access'|'template';
 type EditorFields={registration:string;file:string;date:string;markLabel:string};
 const slotNames:Record<ConfigKey,string>={registration:'Registration number',file:'File number',date:'Registration date',logo:'Logo image'};
+const MONTHS = [
+  ['janv', 'Jan'],
+  ['févr', 'Feb'],
+  ['mars', 'Mar'],
+  ['avr', 'Apr'],
+  ['mai', 'May'],
+  ['juin', 'Jun'],
+  ['juill', 'Jul'],
+  ['août', 'Aug'],
+  ['sept', 'Sept'],
+  ['oct', 'Oct'],
+  ['nov', 'Nov'],
+  ['déc', 'Dec'],
+];
+
+const ENGLISH_MONTHS = [
+  'january', 'february', 'march', 'april',
+  'may', 'june', 'july', 'august',
+  'september', 'october', 'november', 'december'
+];
+
+function formatBilingualDate(input: string): string {
+  const match = input.trim().match(
+    /^(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})$/
+  );
+
+  if (!match) return input;
+
+  const [, day, month, year] = match;
+  const index = ENGLISH_MONTHS.findIndex(
+    m => m === month.toLowerCase() ||
+         m.slice(0, 3) === month.toLowerCase()
+  );
+
+  if (index === -1) return input;
+
+  const [fr, en] = MONTHS[index];
+  return `${day} ${fr}/${en} ${year}`;
+}
+
 const api=async(path:string,options?:RequestInit)=>{
   const res=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});
   if(!res.ok){const e=await res.json().catch(()=>({error:'Request failed'}));throw new Error(e.error||'Request failed');}
@@ -28,7 +68,7 @@ export default function Home(){
   const [newPass,setNewPass]=useState('');
   const [newQuota,setNewQuota]=useState(10);
   const [newExpiry,setNewExpiry]=useState('');
-  const [fields,setFields]=useState<EditorFields>({registration:'TMA1,085,925',file:'1886778',date:'22 Oct 2020',markLabel:'HAYA GAMING'});
+  const [fields,setFields]=useState<EditorFields>({registration:'TMA1,085,925',file:'1886778',date:'22 oct/Oct 2020',markLabel:'HAYA GAMING'});
   const [logo,setLogo]=useState<string|null>(null);
   const [config,setConfig]=useState<TemplateConfig>(structuredClone(DEFAULT_CONFIG));
   const [selected,setSelected]=useState<ConfigKey>('registration');
