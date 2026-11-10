@@ -12,3 +12,11 @@
 
 .paper{container-type:inline-size}
 .demo-foot{min-height:42px;display:flex;align-items:center;justify-content:center}
+
+/* SHINZO - Editable Text Font Fix */
+
+.overlay-field {
+  font-family: "Times New Roman", Times, serif !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+}
