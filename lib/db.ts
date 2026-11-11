@@ -121,10 +121,20 @@ export const db = () => {
   return database;
 };
 
+
 export const publicUser = (user: RawUser): UserPublic => ({
-  id: user.id, username: user.username, role: user.role, active: !!user.active,
-  quota: user.quota, used: user.used, expiresAt: user.expires_at, createdAt: user.created_at
+  id: user.id,
+  username: user.username,
+  role: user.role,
+  active: !!user.active,
+  quota: user.quota,
+  used: user.used,
+  expiresAt: user.expires_at,
+  createdAt: user.created_at,
+  deviceLimit: user.device_limit,
+  blockedReason: user.blocked_reason
 });
+
 export const findUser = (username: string): RawUser | undefined => db().prepare('SELECT * FROM users WHERE username = ?').get(username) as RawUser | undefined;
 export const findUserById = (id: number): RawUser | undefined => db().prepare('SELECT * FROM users WHERE id = ?').get(id) as RawUser | undefined;
 export const listEditors = (): UserPublic[] => (db().prepare("SELECT * FROM users WHERE role='editor' ORDER BY id DESC").all() as RawUser[]).map(publicUser);
