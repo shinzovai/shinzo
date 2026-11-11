@@ -288,10 +288,10 @@ export default function Home(){
     Reset Devices
   </button>
 </div>
-
-            </div>}
-          </div>
-        </> : <>
+</div>)}
+</div>}
+</div>
+</> : <>
           <div className="heading"><div><p className="eyebrow">SHINZO / {tab==='template'?'TEMPLATE SETTINGS':'CREATIVE STUDIO'}</p>
             <h1>{tab==='template'?'Template manager':'Certificate editor'}</h1>
             <p className="muted">{tab==='template'?'Upload an A4 JPG/PNG and position each editable element.':'Edit allowed fields, see the A4 preview, and export a clearly marked sample PDF.'}</p></div>
