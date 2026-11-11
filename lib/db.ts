@@ -38,7 +38,56 @@ export const db = () => {
       mark_label TEXT NOT NULL, created_at TEXT NOT NULL
     );
   `);
-  // Seed the user's supplied reference JPG once. Admin may replace it later;
+ 
+  // Device security database migration.
+  // Existing users and sessions are preserved.
+  const userColumns = database.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
+
+  if (!userColumns.some(column => column.name === 'device_limit')) {
+    database.exec(
+      'ALTER TABLE users ADD COLUMN device_limit INTEGER NOT NULL DEFAULT 1'
+    );
+  }
+
+  if (!userColumns.some(column => column.name === 'blocked_reason')) {
+    database.exec(
+      'ALTER TABLE users ADD COLUMN blocked_reason TEXT'
+    );
+  }
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS editor_devices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      device_hash TEXT NOT NULL,
+      device_name TEXT,
+      browser TEXT,
+      ip_address TEXT,
+      first_seen TEXT NOT NULL,
+      last_seen TEXT NOT NULL,
+      revoked INTEGER NOT NULL DEFAULT 0,
+      UNIQUE(user_id, device_hash),
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS device_login_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      device_hash TEXT,
+      browser TEXT,
+      ip_address TEXT,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_editor_devices_user
+      ON editor_devices(user_id);
+
+    CREATE INDEX IF NOT EXISTS idx_device_login_logs_user
+      ON device_login_logs(user_id, created_at);
+  `);
+
   // editor accounts never receive permissions to upload/change templates.
   const existingTemplate = database.prepare("SELECT value FROM settings WHERE key='template_file'").get();
   const referenceImage = path.join(process.cwd(), 'assets', 'canadian-reference.jpg');
