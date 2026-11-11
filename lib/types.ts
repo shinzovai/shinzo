@@ -12,9 +12,18 @@ export const DEFAULT_CONFIG: TemplateConfig = {
   logo:         { x: 50.0, y: 64.9, width: 26.0, height: 19.7, fontSize: 12 }
 };
 
+
 export type UserPublic = {
-  id: number; username: string; role: Role; active: boolean;
-  quota: number; used: number; expiresAt: string | null; createdAt: string;
+  id: number;
+  username: string;
+  role: Role;
+  active: boolean;
+  quota: number;
+  used: number;
+  expiresAt: string | null;
+  createdAt: string;
+  deviceLimit: number;
+  blockedReason: string | null;
 };
 
 export function safeConfig(input: unknown): TemplateConfig {
