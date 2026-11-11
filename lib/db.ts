@@ -9,10 +9,21 @@ import type { UserPublic } from './types';
 const require = createRequire(import.meta.url);
 const { DatabaseSync } = require('node:sqlite');
 
+
 type RawUser = {
-  id: number; username: string; password_hash: string; role: 'admin' | 'editor';
-  active: number; quota: number; used: number; expires_at: string | null; created_at: string;
+  id: number;
+  username: string;
+  password_hash: string;
+  role: 'admin' | 'editor';
+  active: number;
+  quota: number;
+  used: number;
+  expires_at: string | null;
+  created_at: string;
+  device_limit: number;
+  blocked_reason: string | null;
 };
+
 type SessionUser = RawUser;
 let database: InstanceType<typeof DatabaseSync> | undefined;
 
@@ -150,4 +161,97 @@ export const dashboardTotals = () => {
   const logs = db().prepare('SELECT COUNT(*) AS total FROM export_logs').get() as {total:number};
   return { users: editors.all_users, active: editors.active_users || 0, exports: logs.total };
 };
+
+export type DeviceLoginResult =
+  | { ok: true; deviceHash: string }
+  | { ok: false; reason: 'ACCOUNT_BLOCKED' | 'DEVICE_LIMIT_EXCEEDED' };
+
+export function verifyEditorDevice(
+  userId: number,
+  deviceToken: string,
+  browser: string,
+  ipAddress: string
+): DeviceLoginResult {
+  const store = db();
+  const deviceHash = sha(deviceToken);
+  const now = new Date().toISOString();
+
+  store.exec('BEGIN IMMEDIATE');
+
+  try {
+    const user = findUserById(userId);
+
+    if (!user || user.role !== 'editor' || !user.active) {
+      store.exec('COMMIT');
+      return { ok: false, reason: 'ACCOUNT_BLOCKED' };
+    }
+
+    const existing = store.prepare(`
+      SELECT id FROM editor_devices
+      WHERE user_id = ? AND device_hash = ? AND revoked = 0
+    `).get(userId, deviceHash) as { id: number } | undefined;
+
+    if (existing) {
+      store.prepare(`
+        UPDATE editor_devices
+        SET last_seen = ?, browser = ?, ip_address = ?
+        WHERE id = ?
+      `).run(now, browser, ipAddress, existing.id);
+
+      store.prepare(`
+        INSERT INTO device_login_logs
+        (user_id, device_hash, browser, ip_address, status, created_at)
+        VALUES (?, ?, ?, ?, 'ALLOWED', ?)
+      `).run(userId, deviceHash, browser, ipAddress, now);
+
+      store.exec('COMMIT');
+      return { ok: true, deviceHash };
+    }
+
+    const count = store.prepare(`
+      SELECT COUNT(*) AS total
+      FROM editor_devices
+      WHERE user_id = ? AND revoked = 0
+    `).get(userId) as { total: number };
+
+    if (count.total >= user.device_limit) {
+      store.prepare(`
+        UPDATE users
+        SET active = 0, blocked_reason = 'DEVICE_LIMIT_EXCEEDED'
+        WHERE id = ?
+      `).run(userId);
+
+      store.prepare(`
+        DELETE FROM sessions WHERE user_id = ?
+      `).run(userId);
+
+      store.prepare(`
+        INSERT INTO device_login_logs
+        (user_id, device_hash, browser, ip_address, status, created_at)
+        VALUES (?, ?, ?, ?, 'ACCOUNT_BLOCKED', ?)
+      `).run(userId, deviceHash, browser, ipAddress, now);
+
+      store.exec('COMMIT');
+      return { ok: false, reason: 'DEVICE_LIMIT_EXCEEDED' };
+    }
+
+    store.prepare(`
+      INSERT INTO editor_devices
+      (user_id, device_hash, browser, ip_address, first_seen, last_seen)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(userId, deviceHash, browser, ipAddress, now, now);
+
+    store.prepare(`
+      INSERT INTO device_login_logs
+      (user_id, device_hash, browser, ip_address, status, created_at)
+      VALUES (?, ?, ?, ?, 'REGISTERED', ?)
+    `).run(userId, deviceHash, browser, ipAddress, now);
+
+    store.exec('COMMIT');
+    return { ok: true, deviceHash };
+  } catch (error) {
+    store.exec('ROLLBACK');
+    throw error;
+  }
+}
 export type { RawUser };
