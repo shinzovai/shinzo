@@ -202,12 +202,93 @@ export default function Home(){
             {users.length===0?<div className="empty-state">No editors yet. Create one above to grant access.</div>:<div className="user-grid">
               {users.map(u=><div className="user-card" key={u.id}>
                 <div className="user-card-top"><div className="avatar">{u.username.charAt(0).toUpperCase()}</div><div><b>{u.username}</b><div className="muted small">{u.used} / {u.quota} PDFs generated · {u.expiresAt || 'No expiry'}</div></div><span className={u.active?'status active':'status disabled'}>{u.active?'Active':'Disabled'}</span></div>
-                <div className="user-actions"><button disabled={busy} onClick={()=>patchUser(u.id,{active:!u.active})}>{u.active?'Disable':'Enable'}</button>
-                  <button disabled={busy} onClick={()=>{const s=prompt('New total PDF quota',String(u.quota));if(s!==null)patchUser(u.id,{quota:Number(s)})}}>Edit quota</button>
-                  <button disabled={busy} onClick={()=>{const s=prompt('Expiry (YYYY-MM-DD), blank for none',u.expiresAt||'');if(s!==null)patchUser(u.id,{expiresAt:s||null})}}>Expiry</button>
-                  <button disabled={busy} onClick={()=>{const s=prompt('Set a new password (10+ characters)');if(s)patchUser(u.id,{password:s})}}>Reset password</button>
-                  <button disabled={busy} onClick={()=>patchUser(u.id,{resetUsed:true})}>Reset usage</button></div>
-              </div>)}
+                
+<div className="user-actions">
+  <button
+    disabled={busy}
+    onClick={() => patchUser(u.id, { active: !u.active })}
+  >
+    {u.active ? 'Disable' : 'Enable'}
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      const s = prompt('New total PDF quota', String(u.quota));
+      if (s !== null) patchUser(u.id, { quota: Number(s) });
+    }}
+  >
+    Edit quota
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      const s = prompt(
+        'Expiry (YYYY-MM-DD), blank for none',
+        u.expiresAt || ''
+      );
+      if (s !== null) patchUser(u.id, { expiresAt: s || null });
+    }}
+  >
+    Expiry
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      const s = prompt('Set a new password (10+ characters)');
+      if (s) patchUser(u.id, { password: s });
+    }}
+  >
+    Reset password
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => patchUser(u.id, { resetUsed: true })}
+  >
+    Reset usage
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      const s = prompt(
+        'Maximum allowed devices (1-20)',
+        String(u.deviceLimit ?? 1)
+      );
+      if (s !== null && s.trim() !== '') {
+        patchUser(u.id, { deviceLimit: Number(s) });
+      }
+    }}
+  >
+    Device Limit
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      if (confirm('Unblock this editor account?')) {
+        patchUser(u.id, { unblock: true });
+      }
+    }}
+  >
+    Unblock
+  </button>
+
+  <button
+    disabled={busy}
+    onClick={() => {
+      if (confirm('Remove all registered devices and log out this editor?')) {
+        patchUser(u.id, { resetDevices: true });
+      }
+    }}
+  >
+    Reset Devices
+  </button>
+</div>
+
             </div>}
           </div>
         </> : <>
